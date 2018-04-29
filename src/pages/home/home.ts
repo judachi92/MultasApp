@@ -1,50 +1,63 @@
-import {Component, NgZone} from '@angular/core';
+import {Component, NgZone, OnInit} from '@angular/core';
 import {NavController} from 'ionic-angular';
 import {HTTP} from '@ionic-native/http';
+import { LoadingController } from 'ionic-angular';
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html'
 })
-export class HomePage {
+export class HomePage implements OnInit{
 
     dataurl: any = [];
     data: any = [];
     header: any = {};
 
-    constructor(public navCtrl: NavController, public http: HTTP, public zone: NgZone) {
+    form_multa: FormGroup;
+
+    constructor(public navCtrl: NavController, public http: HTTP, public zone: NgZone, public loadingCtr:LoadingController) {
     }
 
-    ionViewDidEnter(){
+    ngOnInit(): void {
+
+        this.form_multa = new FormGroup({
+            cedula: new FormControl('', [Validators.required])
+        });
+
+    }
+
+    onSubmit(){
+        let loading = this.loadingCtr.create({
+            content: 'Por favor espere...'
+        });
+        loading.present();
         this.header['Cache-Control'] = 'no-cache';
         this.http.clearCookies();
-        this.http.get('http://172.20.10.6/',{},this.header)
+        let cedula = this.form_multa.get('cedula').value;
+        this.http.get('http://181.118.148.8:81/MultasWeb/public/getMultas/'+cedula,
+            {},this.header)
             .then(res =>{
                 this.zone.run(()=>{
                    this.dataurl=JSON.parse(res.data);
                    this.data = this.dataurl;
+                    loading.dismiss();
                 });
             }).catch(e =>{
                 console.log(e);
+                loading.dismiss();
         });
     }
 
+
     getItems(ev) {
-        // Reset items back to all of the items
         this.data = this.dataurl;
-
-        // set val to the value of the ev target
         var val = ev.target.value;
-
-        // if the value is an empty string don't filter the items
         if (val && val.trim() != '') {
-            this.data = this.data.filter((item) => {
-                return (item.toLowerCase().indexOf(val.toLowerCase()) > -1);
-            })
+            this.data = this.data.filter(item =>  {
+                return (item.Placa.toLowerCase().indexOf(val.toLowerCase()) > -1);
+            });
         }
     }
 
-    viewData(){
-
-    }
 }

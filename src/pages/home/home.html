@@ -6,26 +6,37 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content>
-    <ion-item>
-        <ion-label floating>Ingresa Tu Cedula</ion-label>
-        <ion-input type="number"></ion-input>
-    </ion-item>
+<ion-content padding="">
+    <form novalidate (ngSubmit)="onSubmit(form_multa)" [formGroup]="form_multa">
+        <ion-item>
+            <ion-label floating>Ingresa Tu Cedula</ion-label>
+            <ion-input formControlName="cedula" type="number"></ion-input>
+        </ion-item>
+        <ion-item no-lines
+                  *ngIf="form_multa.get('cedula').hasError('required') && form_multa.get('cedula').touched">
+            <div class="mensajeerror">Required</div>
+        </ion-item>
 
+        <button ion-button full icon-start  [disabled]="form_multa.invalid">
+            <ion-icon name='search'></ion-icon>Consultar
+        </button>
+    </form>
     <br>
     <ion-searchbar (ionInput)="getItems($event)"></ion-searchbar>
     <ion-list>
         <ion-card *ngFor="let objdata of data; let index= index"
                   detail-push (click)="viewData(objdata)">
             <ion-item>
-                <ion-avatar item-start>
-                    <img src="../../assets/icon/icon_shopcar.png">
-                </ion-avatar>
-                <h2></h2>
+                <ion-icon name='document'></ion-icon>
+                <h2>{{objdata.Cedula}} - {{objdata.Nombre}} {{objdata.Apellido}}</h2>
             </ion-item>
             <ion-card-content>
                 <p>
-
+                    <b>Vehículo:</b> {{objdata.Placa}} <br>
+                    <b>Modelo:</b> {{objdata.Modelo}} - <b>Año:</b> {{objdata.Ano}}<br>
+                    <b>Fecha Multa:</b> {{objdata.Fecha}} - <b>Estado:</b> {{objdata.Estado}}<br>
+                    <b>Valor Multa:</b> {{objdata.Valor}} <br>
+                    <b>Descripción:</b> {{objdata.Descripcion}}
                 </p>
             </ion-card-content>
         </ion-card>
